@@ -8,7 +8,6 @@ import {
   nativeImage,
   screen,
   Notification,
-  shell,
 } from "electron";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -83,7 +82,7 @@ function createWindow() {
   });
 
   // Hide from screen capture (Windows)
-  mainWindow.setContentProtection(false);
+  mainWindow.setContentProtection(true);
 
   // Use built renderer if available, otherwise try dev server
   if (hasBuiltRenderer) {
