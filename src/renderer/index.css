@@ -1,0 +1,132 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --panel-bg: rgba(14, 14, 18, 0.95);
+  --panel-border: rgba(255, 255, 255, 0.06);
+  --input-bg: rgba(33, 33, 38, 0.95);
+  --accent-cyan: #6ae0ff;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background: transparent;
+  overflow: hidden;
+}
+
+/* Custom scrollbar - visible and clickable */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Animations */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.5;
+  }
+}
+
+.listening-ring {
+  animation: pulse-ring 1.5s ease-in-out infinite;
+}
+
+/* Focus styles */
+input:focus,
+textarea:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+textarea {
+  outline: none !important;
+}
+
+/* Markdown content */
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3 {
+  font-weight: 600;
+  margin-top: 0.5em;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  padding-left: 1.5em;
+}
+
+.markdown-content a {
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: underline;
+}
+
+.markdown-content a:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.markdown-content code {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  font-family: "Cascadia Code", "Fira Code", monospace;
+}
+
+/* KaTeX styling for dark theme */
+.katex {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.katex-display {
+  margin: 0.5em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* Ensure scroll container works properly */
+.markdown-content {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Make line breaks smaller - reduce line height */
+.markdown-content {
+  line-height: 0.8;
+}
+
+/* For whitespace-pre-wrap, reduce spacing between lines */
+.markdown-content[style*="whitespace-pre-wrap"] {
+  line-height: 0.8;
+}

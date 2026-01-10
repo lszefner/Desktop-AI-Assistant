@@ -1,0 +1,52 @@
+{
+  "name": "assistant",
+  "version": "1.0.0",
+  "description": "AI Desktop Assistant - An intelligent desktop assistant with Google Calendar, Tasks, Email integration, browser automation, and proactive monitoring capabilities",
+  "main": "dist/main/main.js",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:main\" \"npm run dev:renderer\"",
+    "dev:main": "concurrently \"tsc -p tsconfig.main.json --watch\" \"tsc -p tsconfig.preload.json --watch\"",
+    "dev:renderer": "vite",
+    "build": "npm run build:main && npm run build:renderer",
+    "build:main": "tsc -p tsconfig.main.json && tsc -p tsconfig.preload.json",
+    "build:renderer": "vite build",
+    "start": "electron .",
+    "preview": "npm run build && electron .",
+    "oauth": "node oauth-helper.js"
+  },
+  "dependencies": {
+    "@xenova/transformers": "^2.17.2",
+    "canvas": "^3.2.0",
+    "dotenv": "^16.3.1",
+    "electron-store": "^8.1.0",
+    "google-auth-library": "^9.4.1",
+    "googleapis": "^131.0.0",
+    "katex": "^0.16.27",
+    "lucide-react": "^0.562.0",
+    "openai": "^4.24.1",
+    "playwright": "^1.57.0",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0",
+    "systeminformation": "^5.21.22",
+    "wavefile": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.16",
+    "concurrently": "^8.2.2",
+    "electron": "^28.1.0",
+    "postcss": "^8.4.32",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-markdown": "^9.0.1",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.10"
+  },
+  "author": "Liam Szefner",
+  "license": "MIT"
+}
