@@ -1003,6 +1003,13 @@ export class AgentService {
   }
 
   /**
+   * Clear conversation history. Next message will start fresh.
+   */
+  clearHistory() {
+    this.history = [];
+  }
+
+  /**
    * Set callback for progress updates during query processing.
    *
    * @param cb - Callback function to receive status updates

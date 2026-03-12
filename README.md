@@ -141,6 +141,8 @@ npm start  # Or npm run preview
 | `USE_LOCAL_PROACTIVE` | Use Ollama for proactive features              | `true`            |
 | `ASSISTANT_NAME`      | Assistant name in UI                           | `Assistant`       |
 | `DEBUG`               | Debugging in console                           | `false`           |
+| `CONTENT_PROTECTION`   | Hide window from screen capture (Windows only)      | `false`            |
+
 
 ### Google OAuth Setup
 
@@ -155,6 +157,7 @@ npm start  # Or npm run preview
 
 - `Ctrl+Y` (or `Cmd+Y` on Mac): Toggle assistant window
 - `Ctrl+H`: Capture screenshot and attach to next message
+- `Ctrl+ñ`: Clear conversation context (start fresh)
 - `Escape`: Hide assistant window
 - `Enter`: Send message (Shift+Enter for new line)
 

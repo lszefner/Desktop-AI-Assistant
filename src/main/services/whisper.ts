@@ -1,7 +1,7 @@
 import { app } from "electron";
 import { writeFile, unlink, mkdir, readFile } from "fs/promises";
 import { join } from "path";
-import { existsSync } from "fs";
+import { existsSync, readdirSync } from "fs";
 import { execSync, spawn } from "child_process";
 import { logger } from "../utils/logger.js";
 
@@ -45,6 +45,30 @@ export class WhisperService {
           this.ffmpegPath = p;
           logger.debug("Whisper", `Found ffmpeg at: ${this.ffmpegPath}`);
           return;
+        }
+      }
+      // WinGet (winget install Gyan.FFmpeg)
+      const winGetBase = join(
+        process.env.LOCALAPPDATA || "",
+        "Microsoft",
+        "WinGet",
+        "Packages"
+      );
+      if (existsSync(winGetBase)) {
+        for (const dir of readdirSync(winGetBase)) {
+          if (dir.startsWith("Gyan.FFmpeg")) {
+            const pkgPath = join(winGetBase, dir);
+            for (const sub of readdirSync(pkgPath)) {
+              if (sub.startsWith("ffmpeg-") && sub.endsWith("_build")) {
+                const ff = join(pkgPath, sub, "bin", "ffmpeg.exe");
+                if (existsSync(ff)) {
+                  this.ffmpegPath = ff;
+                  logger.debug("Whisper", `Found ffmpeg at: ${this.ffmpegPath}`);
+                  return;
+                }
+              }
+            }
+          }
         }
       }
       logger.warn("Whisper", "ffmpeg not found - audio conversion will fail");

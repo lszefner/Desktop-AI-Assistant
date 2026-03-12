@@ -104,6 +104,20 @@ export default function App() {
     return cleanup;
   }, []);
 
+  // Listen for context cleared (Ctrl+;)
+  useEffect(() => {
+    const cleanup = window.electron?.onContextCleared?.(() => {
+      setState("idle");
+      setStatus("");
+      setResponse("");
+      setAttachedScreenshot(null);
+      window.electron?.clearScreenshot();
+      window.electron?.resizeWindow(68);
+      setTimeout(() => inputRef.current?.focus(), 50);
+    });
+    return cleanup;
+  }, []);
+
   // Listen for reset event (when window is shown via Ctrl+Y)
   useEffect(() => {
     const cleanup = window.electron?.onReset(() => {

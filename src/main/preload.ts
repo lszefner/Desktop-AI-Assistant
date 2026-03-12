@@ -8,6 +8,7 @@ contextBridge.exposeInMainWorld("electron", {
   setProvider: (provider: "openai" | "ollama") =>
     ipcRenderer.invoke("agent:setProvider", provider),
   getProvider: () => ipcRenderer.invoke("agent:getProvider"),
+  clearHistory: () => ipcRenderer.invoke("agent:clearHistory"),
 
   // Google
   manageTasks: (action: string, params?: any) =>
@@ -72,6 +73,7 @@ declare global {
       getDatetime: () => Promise<string>;
       setProvider: (provider: "openai" | "ollama") => Promise<void>;
       getProvider: () => Promise<"openai" | "ollama">;
+      clearHistory: () => Promise<void>;
       manageTasks: (action: string, params?: any) => Promise<string>;
       manageCalendar: (action: string, params?: any) => Promise<string>;
       manageEmail: (action: string, params?: any) => Promise<string>;
@@ -106,6 +108,7 @@ declare global {
       ) => Promise<{ success: boolean }>;
       onStatus: (callback: (status: string) => void) => () => void;
       onReset: (callback: () => void) => () => void;
+      onContextCleared: (callback: () => void) => () => void;
       onScreenshotAttached: (callback: (base64: string) => void) => () => void;
       onNotificationAction: (callback: (query: string) => void) => () => void;
     };

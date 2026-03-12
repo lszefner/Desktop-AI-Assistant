@@ -82,7 +82,11 @@ function createWindow() {
   });
 
   // Hide from screen capture (Windows)
-  mainWindow.setContentProtection(true);
+  if (process.env.CONTENT_PROTECTION === "true") {
+    mainWindow.setContentProtection(true);
+  } else {
+    mainWindow.setContentProtection(false);
+  }
 
   // Use built renderer if available, otherwise try dev server
   if (hasBuiltRenderer) {
@@ -91,13 +95,13 @@ function createWindow() {
   } else if (isDev) {
     logger.info(
       "Main",
-      "No built renderer found, trying dev server at http://localhost:5173"
+      "No built renderer found, trying dev server at http://localhost:5173",
     );
     mainWindow.loadURL("http://localhost:5173");
   } else {
     logger.error(
       "Main",
-      "No renderer found! Build the renderer first with: npm run build:renderer"
+      "No renderer found! Build the renderer first with: npm run build:renderer",
     );
     app.quit();
   }
@@ -333,6 +337,15 @@ function registerShortcuts() {
     });
   }
 
+  // Ctrl+; to clear conversation context (rarely used in other apps)
+  globalShortcut.register("CommandOrControl+;", () => {
+    agentService.clearHistory();
+    logger.info("Main", "Ctrl+; pressed - conversation context cleared");
+    if (mainWindow?.isVisible()) {
+      mainWindow.webContents.send("context:cleared");
+    }
+  });
+
   // Ctrl+H to capture screenshot and attach to next message
   globalShortcut.register("CommandOrControl+H", async () => {
     try {
@@ -380,12 +393,17 @@ function setupIPC() {
     async (_, provider: "openai" | "ollama") => {
       logger.info("IPC", `Setting agent provider to: ${provider}`);
       agentService.setProvider(provider);
-    }
+    },
   );
 
   // Get current agent provider
   ipcMain.handle("agent:getProvider", async () => {
     return agentService.getProvider();
+  });
+
+  // Clear conversation history
+  ipcMain.handle("agent:clearHistory", async () => {
+    agentService.clearHistory();
   });
 
   // Google services
@@ -406,7 +424,7 @@ function setupIPC() {
     "web:search",
     async (_, query: string, maxResults?: number) => {
       return await webSearchService.search(query, maxResults);
-    }
+    },
   );
 
   // System
@@ -486,7 +504,7 @@ function setupIPC() {
     async (_, type: "normal" | "high" | "critical" = "normal") => {
       testNotification(type);
       return { success: true };
-    }
+    },
   );
 
   // Window controls
@@ -521,7 +539,7 @@ function setupIPC() {
       const transcript = await whisperService.transcribeFromBase64(audioBase64);
       logger.debug(
         "IPC",
-        `Transcription result: ${transcript.slice(0, 50)}...`
+        `Transcription result: ${transcript.slice(0, 50)}...`,
       );
       return { success: true, transcript };
     } catch (error: any) {
@@ -554,7 +572,7 @@ app.whenReady().then(async () => {
   if (!Notification.isSupported()) {
     logger.warn(
       "Main",
-      "Desktop notifications are not supported on this system"
+      "Desktop notifications are not supported on this system",
     );
   } else {
     logger.debug("Main", "Desktop notifications are supported");
@@ -573,7 +591,7 @@ app.whenReady().then(async () => {
   proactiveService = new ProactiveService(
     googleService,
     systemService,
-    agentService
+    agentService,
   );
 
   // Initialize Whisper in background (preload model)
@@ -590,7 +608,7 @@ app.whenReady().then(async () => {
     googleService,
     webSearchService,
     systemService,
-    screenshotService
+    screenshotService,
   );
   agentService.setBrowserService(browserService);
 
@@ -623,11 +641,11 @@ app.whenReady().then(async () => {
       if (!Notification.isSupported()) {
         logger.warn(
           "Proactive",
-          "Notifications not supported, logging instead"
+          "Notifications not supported, logging instead",
         );
         logger.info(
           "Proactive",
-          `Notification: ${notification.title}: ${notification.message}`
+          `Notification: ${notification.title}: ${notification.message}`,
         );
         return;
       }
@@ -701,7 +719,7 @@ app.whenReady().then(async () => {
     "Main",
     `Starting proactive monitoring (checks every ${
       PROACTIVE_CHECK_INTERVAL / 1000
-    } seconds)...`
+    } seconds)...`,
   );
   proactiveInterval = setInterval(async () => {
     try {
