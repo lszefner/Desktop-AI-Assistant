@@ -20,7 +20,7 @@ const OLLAMA_MODEL = process.env.OLLAMA_MODEL;
 type NotificationCallback = (title: string, message: string) => void;
 type ProgressCallback = (status: string) => void;
 type ToolHandler = (
-  args: any
+  args: any,
 ) => Promise<string | { result: string; screenshot?: string }>;
 
 interface Message {
@@ -771,7 +771,7 @@ export class AgentService {
     const apiKey = process.env.OPENAI_API_KEY;
     logger.info(
       "Agent",
-      `Initializing... Mode: ${USE_OLLAMA ? "OLLAMA" : "OPENAI"}`
+      `Initializing... Mode: ${USE_OLLAMA ? "OLLAMA" : "OPENAI"}`,
     );
 
     // OpenAI client is always needed for Vision capability even if using Ollama for text
@@ -893,12 +893,12 @@ export class AgentService {
       const results = await this.webSearchService!.search(
         args.query,
         args.max_results || 5,
-        true
+        true,
       );
       return results
         .map(
           (r: any, i: number) =>
-            `[${i + 1}] ${r.title}\nURL: ${r.url}\n${r.snippet}`
+            `[${i + 1}] ${r.title}\nURL: ${r.url}\n${r.snippet}`,
         )
         .join("\n\n");
     };
@@ -967,7 +967,7 @@ export class AgentService {
     g: GoogleService,
     w: WebSearchService,
     s: SystemService,
-    sc: ScreenshotService
+    sc: ScreenshotService,
   ) {
     this.googleService = g;
     this.webSearchService = w;
@@ -1048,7 +1048,7 @@ export class AgentService {
    */
   private async executeTool(
     name: string,
-    args: Record<string, any>
+    args: Record<string, any>,
   ): Promise<{ result: string; screenshot?: string }> {
     logger.debug("Agent", `Executing tool: ${name}`, args);
     const handler = this.toolRegistry[name];
@@ -1251,7 +1251,7 @@ Your task: Take the information gathered and present it naturally to Sir.`;
     query: string,
     provider: "openai" | "ollama",
     useTools: boolean = false,
-    jsonMode: boolean = false
+    jsonMode: boolean = false,
   ): Promise<string> {
     try {
       const messages: ChatCompletionMessageParam[] = [
@@ -1268,7 +1268,7 @@ Your task: Take the information gathered and present it naturally to Sir.`;
         }
         return await this.runOllamaLoop(
           messages,
-          useTools ? this.getOllamaTools() : []
+          useTools ? this.getOllamaTools() : [],
         );
       } else {
         return await this.runOpenAILoop(messages, tools);
@@ -1279,7 +1279,7 @@ Your task: Take the information gathered and present it naturally to Sir.`;
         logger.error(
           "Agent",
           "Error in processQueryWithProvider - Ollama not running",
-          error
+          error,
         );
         throw error; // Re-throw so proactive service can detect and notify
       }
@@ -1330,7 +1330,7 @@ Your task: Take the information gathered and present it naturally to Sir.`;
         logger.error(
           "Agent",
           "Ollama connection failed - service may not be running",
-          error
+          error,
         );
         throw connectionError;
       }
@@ -1397,7 +1397,7 @@ Your task: Take the information gathered and present it naturally to Sir.`;
       if (this.provider === "ollama" && !hasVision) {
         finalResponse = await this.runOllamaLoop(
           messages,
-          this.getOllamaTools()
+          this.getOllamaTools(),
         );
       } else {
         // OpenAI (or vision requires OpenAI)
@@ -1415,7 +1415,7 @@ Your task: Take the information gathered and present it naturally to Sir.`;
   // --- OLLAMA SPECIFIC LOOP (Optimized for Qwen/Llama 3.2) ---
   private async runOllamaLoop(
     messages: any[],
-    tools: OllamaTool[]
+    tools: OllamaTool[],
   ): Promise<string> {
     // Add specific instruction for tool use on local models
     const toolInstruction = `\n\n[CRITICAL TOOL CALLING INSTRUCTIONS]:
@@ -1453,27 +1453,27 @@ WRONG (never do this):
         this.emitProgress("Thinking...");
         logger.debug(
           "Agent",
-          `[Ollama] Starting iteration ${iterations + 1}/${maxIterations}`
+          `[Ollama] Starting iteration ${iterations + 1}/${maxIterations}`,
         );
         logger.debug(
           "Agent",
           `[Ollama] User query: "${
             currentMessages[currentMessages.length - 1]?.content || "N/A"
-          }"`
+          }"`,
         );
         logger.debug(
           "Agent",
           `[Ollama] Available tools: ${tools.length} tools (${tools
             .slice(0, 5)
             .map((t) => t.function.name)
-            .join(", ")}${tools.length > 5 ? "..." : ""})`
+            .join(", ")}${tools.length > 5 ? "..." : ""})`,
         );
       } else {
         logger.debug(
           "Agent",
           `[Ollama] Iteration ${
             iterations + 1
-          }/${maxIterations} - Processing tool results...`
+          }/${maxIterations} - Processing tool results...`,
         );
       }
 
@@ -1489,11 +1489,11 @@ WRONG (never do this):
 
       logger.debug(
         "Agent",
-        `[Ollama] Sending request to ${OLLAMA_URL}/api/chat`
+        `[Ollama] Sending request to ${OLLAMA_URL}/api/chat`,
       );
       logger.debug(
         "Agent",
-        `[Ollama] Message count: ${currentMessages.length}, Tools available: ${tools.length}`
+        `[Ollama] Message count: ${currentMessages.length}, Tools available: ${tools.length}`,
       );
 
       const response = await fetch(`${OLLAMA_URL}/api/chat`, {
@@ -1516,13 +1516,13 @@ WRONG (never do this):
             ? aiMsg.content.substring(0, 200) +
               (aiMsg.content.length > 200 ? "..." : "")
             : "None"
-        }`
+        }`,
       );
       logger.debug(
         "Agent",
         `[Ollama] - Tool calls: ${
           aiMsg.tool_calls ? aiMsg.tool_calls.length : 0
-        }`
+        }`,
       );
       if (aiMsg.tool_calls && aiMsg.tool_calls.length > 0) {
         aiMsg.tool_calls.forEach((call, idx) => {
@@ -1532,7 +1532,7 @@ WRONG (never do this):
             "Agent",
             `[Ollama] - Tool call ${
               idx + 1
-            }: ${toolName} with args: ${JSON.stringify(args).substring(0, 150)}`
+            }: ${toolName} with args: ${JSON.stringify(args).substring(0, 150)}`,
           );
         });
       }
@@ -1559,7 +1559,7 @@ WRONG (never do this):
               };
               logger.debug(
                 "Agent",
-                `[Ollama] ✓ Detected new format tool call: ${parsedToolCall.name}`
+                `[Ollama] ✓ Detected new format tool call: ${parsedToolCall.name}`,
               );
             } else if (parsed.name && typeof parsed.name === "string") {
               // Alternative format: { "name": "tool_name", "arguments": {...} }
@@ -1569,7 +1569,7 @@ WRONG (never do this):
               };
               logger.debug(
                 "Agent",
-                `[Ollama] ✓ Detected alternative format tool call: ${parsedToolCall.name}`
+                `[Ollama] ✓ Detected alternative format tool call: ${parsedToolCall.name}`,
               );
             }
           }
@@ -1577,7 +1577,7 @@ WRONG (never do this):
           // Not valid JSON, will fall through to other parsing
           logger.debug(
             "Agent",
-            `[Ollama] Content is not JSON format, trying other parsers...`
+            `[Ollama] Content is not JSON format, trying other parsers...`,
           );
         }
       }
@@ -1587,7 +1587,7 @@ WRONG (never do this):
         usedTools = true;
         logger.info(
           "Agent",
-          `[Ollama] Agent decided to use ${aiMsg.tool_calls.length} tool(s)`
+          `[Ollama] Agent decided to use ${aiMsg.tool_calls.length} tool(s)`,
         );
         currentMessages.push({
           role: "assistant",
@@ -1605,7 +1605,7 @@ WRONG (never do this):
           logger.debug("Agent", `[Ollama] Processing tool call: ${toolName}`);
           logger.debug(
             "Agent",
-            `[Ollama] Tool arguments: ${JSON.stringify(toolArgs)}`
+            `[Ollama] Tool arguments: ${JSON.stringify(toolArgs)}`,
           );
 
           // Validate tool name - check if it's a placeholder or invalid
@@ -1617,31 +1617,31 @@ WRONG (never do this):
           ) {
             logger.warn(
               "Agent",
-              `[Ollama] Invalid tool name detected: "${toolName}", attempting to parse from text...`
+              `[Ollama] Invalid tool name detected: "${toolName}", attempting to parse from text...`,
             );
             // Try to parse tool name from text content or arguments
             const parsedTool = this.parseToolFromText(
               aiMsg.content || "",
-              toolArgs
+              toolArgs,
             );
             if (parsedTool && this.toolRegistry[parsedTool]) {
               toolName = parsedTool;
               logger.debug(
                 "Agent",
-                `[Ollama] Successfully parsed tool name: ${toolName} (was: ${call.function?.name})`
+                `[Ollama] Successfully parsed tool name: ${toolName} (was: ${call.function?.name})`,
               );
             } else {
               // Invalid tool name - skip this call and inform the model
               logger.error(
                 "Agent",
                 `[Ollama] Invalid tool name: ${toolName}. Available tools: ${Object.keys(
-                  this.toolRegistry
-                ).join(", ")}`
+                  this.toolRegistry,
+                ).join(", ")}`,
               );
               currentMessages.push({
                 role: "assistant",
                 content: `[ERROR] Invalid tool name "${toolName}". Please use one of the exact tool names from the available tools list. Available tools: ${Object.keys(
-                  this.toolRegistry
+                  this.toolRegistry,
                 )
                   .slice(0, 10)
                   .join(", ")}...`,
@@ -1654,7 +1654,7 @@ WRONG (never do this):
           if (failedTools.has(toolName)) {
             logger.debug(
               "Agent",
-              `[Ollama] ⚠️ Tool ${toolName} already failed, skipping retry`
+              `[Ollama] ⚠️ Tool ${toolName} already failed, skipping retry`,
             );
             currentMessages.push({
               role: "assistant",
@@ -1670,14 +1670,14 @@ WRONG (never do this):
             "Agent",
             `[Ollama] Tool ${toolName} completed. Result length: ${
               result.result?.length || 0
-            } chars`
+            } chars`,
           );
 
           // Check if result indicates an error
           if (this.isToolResultError(result.result)) {
             logger.warn(
               "Agent",
-              `[Ollama] ✗ Tool ${toolName} returned error: ${result.result}`
+              `[Ollama] ✗ Tool ${toolName} returned error: ${result.result}`,
             );
             failedTools.add(toolName);
             currentMessages.push({
@@ -1700,7 +1700,7 @@ WRONG (never do this):
         usedTools = true;
         logger.debug(
           "Agent",
-          `[Ollama] Executing tool from new format: ${parsedToolCall.name}`
+          `[Ollama] Executing tool from new format: ${parsedToolCall.name}`,
         );
 
         if (this.toolRegistry[parsedToolCall.name]) {
@@ -1708,7 +1708,7 @@ WRONG (never do this):
           if (failedTools.has(parsedToolCall.name)) {
             logger.debug(
               "Agent",
-              `[Ollama] ⚠️ Tool ${parsedToolCall.name} already failed, skipping retry`
+              `[Ollama] ⚠️ Tool ${parsedToolCall.name} already failed, skipping retry`,
             );
             currentMessages.push({
               role: "assistant",
@@ -1720,27 +1720,27 @@ WRONG (never do this):
 
           logger.info(
             "Agent",
-            `[Ollama] Executing parsed tool: ${parsedToolCall.name}`
+            `[Ollama] Executing parsed tool: ${parsedToolCall.name}`,
           );
           this.emitProgress(
-            this.formatToolProgress(parsedToolCall.name, parsedToolCall.args)
+            this.formatToolProgress(parsedToolCall.name, parsedToolCall.args),
           );
           const result = await this.executeTool(
             parsedToolCall.name,
-            parsedToolCall.args
+            parsedToolCall.args,
           );
           logger.debug(
             "Agent",
             `[Ollama] Tool ${parsedToolCall.name} completed. Result length: ${
               result.result?.length || 0
-            } chars`
+            } chars`,
           );
 
           // Check if result indicates an error
           if (this.isToolResultError(result.result)) {
             logger.warn(
               "Agent",
-              `[Ollama] ✗ Tool ${parsedToolCall.name} returned error: ${result.result}`
+              `[Ollama] ✗ Tool ${parsedToolCall.name} returned error: ${result.result}`,
             );
             failedTools.add(parsedToolCall.name);
             currentMessages.push({
@@ -1762,7 +1762,7 @@ WRONG (never do this):
             "Agent",
             `[Ollama] ✗ Invalid tool name from new format: ${
               parsedToolCall.name
-            }. Available tools: ${Object.keys(this.toolRegistry).join(", ")}`
+            }. Available tools: ${Object.keys(this.toolRegistry).join(", ")}`,
           );
           currentMessages.push({
             role: "assistant",
@@ -1775,13 +1775,13 @@ WRONG (never do this):
         // Text parsing fallback: check if content contains tool call patterns
         logger.debug(
           "Agent",
-          `[Ollama] No tool calls detected, checking for tool patterns in text content...`
+          `[Ollama] No tool calls detected, checking for tool patterns in text content...`,
         );
         const parsedCalls = this.parseToolCallsFromText(aiMsg.content);
         if (parsedCalls.length > 0) {
           logger.debug(
             "Agent",
-            `[Ollama] Found ${parsedCalls.length} tool call(s) in text content`
+            `[Ollama] Found ${parsedCalls.length} tool call(s) in text content`,
           );
           usedTools = true;
           for (const { name, args } of parsedCalls) {
@@ -1790,7 +1790,7 @@ WRONG (never do this):
               if (failedTools.has(name)) {
                 logger.debug(
                   "Agent",
-                  `[Ollama] ⚠️ Tool ${name} already failed, skipping retry`
+                  `[Ollama] ⚠️ Tool ${name} already failed, skipping retry`,
                 );
                 currentMessages.push({
                   role: "assistant",
@@ -1806,14 +1806,14 @@ WRONG (never do this):
                 "Agent",
                 `[Ollama] Tool ${name} completed. Result length: ${
                   result.result?.length || 0
-                } chars`
+                } chars`,
               );
 
               // Check if result indicates an error
               if (this.isToolResultError(result.result)) {
                 logger.warn(
                   "Agent",
-                  `[Ollama] ✗ Tool ${name} returned error: ${result.result}`
+                  `[Ollama] ✗ Tool ${name} returned error: ${result.result}`,
                 );
                 failedTools.add(name);
                 currentMessages.push({
@@ -1834,19 +1834,19 @@ WRONG (never do this):
         } else {
           logger.debug(
             "Agent",
-            `[Ollama] No tool calls found in text. Agent is providing final response.`
+            `[Ollama] No tool calls found in text. Agent is providing final response.`,
           );
           logger.debug(
             "Agent",
             `[Ollama] Response preview: ${aiMsg.content.substring(0, 200)}${
               aiMsg.content.length > 200 ? "..." : ""
-            }`
+            }`,
           );
         }
       } else {
         logger.warn(
           "Agent",
-          `[Ollama] Empty response from agent, finishing...`
+          `[Ollama] Empty response from agent, finishing...`,
         );
       }
 
@@ -1854,18 +1854,18 @@ WRONG (never do this):
       if (aiMsg.content && !aiMsg.tool_calls) {
         logger.debug(
           "Agent",
-          `[Ollama] Finalizing response (usedTools: ${usedTools})...`
+          `[Ollama] Finalizing response (usedTools: ${usedTools})...`,
         );
         if (usedTools) {
           logger.debug(
             "Agent",
-            `[Ollama] Formatting with Speaker (tools were used)...`
+            `[Ollama] Formatting with Speaker (tools were used)...`,
           );
           return await this.formatWithSpeaker(currentMessages, aiMsg.content);
         }
         logger.debug(
           "Agent",
-          `[Ollama] Returning direct response (no tools used)...`
+          `[Ollama] Returning direct response (no tools used)...`,
         );
         return aiMsg.content;
       }
@@ -1873,11 +1873,11 @@ WRONG (never do this):
     // Max iterations - format whatever we have
     logger.warn(
       "Agent",
-      `[Ollama] ⚠️ Reached max iterations (${maxIterations}), finalizing...`
+      `[Ollama] ⚠️ Reached max iterations (${maxIterations}), finalizing...`,
     );
     return await this.formatWithSpeaker(
       currentMessages,
-      "Maximum iterations reached."
+      "Maximum iterations reached.",
     );
   }
 
@@ -1892,10 +1892,10 @@ WRONG (never do this):
    */
   private async runOpenAILoop(
     messages: any[],
-    tools: ChatCompletionTool[]
+    tools: ChatCompletionTool[],
   ): Promise<string> {
     let iterations = 0;
-    const maxIterations = 20;
+    const maxIterations = 50;
     let currentMessages = [...messages];
     let usedTools = false;
 
@@ -1943,7 +1943,7 @@ WRONG (never do this):
         if (usedTools) {
           return await this.formatWithSpeaker(
             currentMessages,
-            msg.content || ""
+            msg.content || "",
           );
         }
         return msg.content || "";
@@ -1952,7 +1952,7 @@ WRONG (never do this):
     // Max iterations - format whatever we have
     return await this.formatWithSpeaker(
       currentMessages,
-      "Maximum iterations reached."
+      "Maximum iterations reached.",
     );
   }
 
@@ -1967,13 +1967,13 @@ WRONG (never do this):
    */
   private async formatWithSpeaker(
     conversationHistory: any[],
-    agentSummary: string
+    agentSummary: string,
   ): Promise<string> {
     this.emitProgress("Formatting response...");
 
     // Extract the original user query
     const userQuery = conversationHistory.find(
-      (m) => m.role === "user"
+      (m) => m.role === "user",
     )?.content;
     const userText =
       typeof userQuery === "string"
@@ -1997,7 +1997,7 @@ WRONG (never do this):
         if (m.role === "tool") return m.content;
         // Extract content after [TOOL_RESULT:toolname] prefix
         const match = (m.content as string).match(
-          /\[TOOL_RESULT:[^\]]+\]\n(.*)/s
+          /\[TOOL_RESULT:[^\]]+\]\n(.*)/s,
         );
         return match ? match[1] : m.content;
       })
@@ -2005,11 +2005,11 @@ WRONG (never do this):
 
     logger.debug(
       "Agent",
-      `Speaker - Tool results length: ${toolResults.length}`
+      `Speaker - Tool results length: ${toolResults.length}`,
     );
     logger.debug(
       "Agent",
-      `Speaker - Tool results preview: ${toolResults.substring(0, 200)}...`
+      `Speaker - Tool results preview: ${toolResults.substring(0, 200)}...`,
     );
 
     const speakerMessages = [
@@ -2141,7 +2141,7 @@ IMPORTANT: You MUST use the data above to answer the user's question. Include al
    */
   private parseToolFromText(
     content: string,
-    args: Record<string, any>
+    args: Record<string, any>,
   ): string | null {
     // Check if args contain hints about which tool to use
     if (args.query && !args.keyword) {
@@ -2208,7 +2208,7 @@ IMPORTANT: You MUST use the data above to answer the user's question. Include al
    * @private
    */
   private parseToolCallsFromText(
-    content: string
+    content: string,
   ): Array<{ name: string; args: Record<string, any> }> {
     const calls: Array<{ name: string; args: Record<string, any> }> = [];
 
